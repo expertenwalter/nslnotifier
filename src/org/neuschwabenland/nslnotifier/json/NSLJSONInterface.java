@@ -15,27 +15,13 @@ import org.neuschwabenland.nslnotifier.json.Mode2Message;
 public class NSLJSONInterface {
 	private static final String JSON_BASEURL = "https://www.neuschwabenland.org/json.php";
 
-	public enum BoardEntry {
-		BOARD_B(3, "b"), BOARD_C(6, "c"), BOARD_UP(8, "up"), BOARD_M(10, "m"), BOARD_NSL(
-				12, "NSL"), BOARD_CHAOS(23, "chaos"), BOARD_NEWS(33, "news");
-
-		private int id;
-		private String name;
-
-		private BoardEntry(int id, String name) {
-			this.id = id;
-			this.name = name;
-		}
-
-		public int getId() {
-			return id;
-		}
-
-		public String getName() {
-			return name;
-		}
-	}
-
+	/**
+	 * Remote procedure call via HTTP
+	 * 
+	 * @param jsonurl URL
+	 * @return JSON Object
+	 * @throws Exception
+	 */
 	private String fetchJSON(String jsonurl) throws Exception {
 		// Fetch JSON document via HTTP
 		URL url = new URL(jsonurl);
@@ -57,9 +43,18 @@ public class NSLJSONInterface {
 		return buf.toString();
 	}
 
-	public int getBoardPostCount(BoardEntry board) throws Exception {
+	/**
+	 * Fetch the post count for a whole board
+	 * 
+	 * @param board
+	 *            Board ID
+	 * @return Post count
+	 * @throws Exception
+	 *             on Error
+	 */
+	public int getBoardPostCount(int boardid) throws Exception {
 
-		String json = fetchJSON(JSON_BASEURL + "?mo=2&bo=" + board.getId());
+		String json = fetchJSON(JSON_BASEURL + "?mo=2&bo=" + boardid);
 
 		// Parse JSON
 		Gson parser = new Gson();
@@ -75,10 +70,21 @@ public class NSLJSONInterface {
 		return Integer.parseInt(scount.substring(1, scount.length() - 1));
 	}
 
-	public int getThreadPostCount(BoardEntry board, long threadid)
+	/**
+	 * Fetch the post count for a single thread
+	 * 
+	 * @param board
+	 *            Board ID
+	 * @param threadid
+	 *            Thread ID
+	 * @return Post count
+	 * @throws Exception
+	 *             on Error
+	 */
+	public int getThreadPostCount(int boardid, long threadid)
 			throws Exception {
 
-		String json = fetchJSON(JSON_BASEURL + "?mo=3&bo=" + board.getId()
+		String json = fetchJSON(JSON_BASEURL + "?mo=3&bo=" + boardid
 				+ "&po=" + threadid);
 
 		// Parse JSON
@@ -95,13 +101,22 @@ public class NSLJSONInterface {
 		return Integer.parseInt(scount);
 	}
 
-	public NSLPost getSinglePost(BoardEntry board, long postid)
+	/**
+	 * Get the content of a single post
+	 * 
+	 * @param board
+	 *            Board ID
+	 * @param postid
+	 *            Post id
+	 * @return Post object
+	 * @throws Exception
+	 *             on error
+	 */
+	public NSLPost getSinglePost(int boardid, long postid)
 			throws Exception {
 
-		String json = fetchJSON(JSON_BASEURL + "?mo=4&bo=" + board.getId()
+		String json = fetchJSON(JSON_BASEURL + "?mo=4&bo=" + boardid
 				+ "&po=" + postid);
-
-		System.out.println(json);
 
 		// Parse JSON
 		Gson parser = new Gson();
@@ -111,11 +126,29 @@ public class NSLJSONInterface {
 		Collection<Mode4Message> msgcollection = parser.fromJson(
 				json.toString(), collectionType);
 
-		Iterator<Mode4Message> iterator = msgcollection.iterator();
-		Mode4Message rawmsg = iterator.next();
-
 		NSLPost post = Mode4Message.toNSLPost((Mode4Message[]) msgcollection
 				.toArray(new Mode4Message[0]));
 		return post;
+	}
+
+	/**
+	 * Get the list of boards and their IDs
+	 * 
+	 * @throws Exception
+	 *             on error
+	 */
+	public Collection<Mode6Message> getBoards() throws Exception {
+
+		String json = fetchJSON(JSON_BASEURL + "?mo=6");
+
+		// Parse JSON
+		Gson parser = new Gson();
+
+		Type collectionType = new TypeToken<Collection<Mode6Message>>() {
+		}.getType();
+		Collection<Mode6Message> msgcollection = parser.fromJson(
+				json.toString(), collectionType);
+
+		return msgcollection;
 	}
 }

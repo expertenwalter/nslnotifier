@@ -9,7 +9,7 @@ public class SinglePostTest {
 		try {
 			System.out.println("Content of /up/283 : "
 					+ fetcher.getSinglePost(
-							NSLJSONInterface.BoardEntry.BOARD_UP, 283));
+							8, 283));
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}

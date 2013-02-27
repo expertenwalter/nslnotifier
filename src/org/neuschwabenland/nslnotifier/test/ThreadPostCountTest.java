@@ -9,7 +9,7 @@ public class ThreadPostCountTest {
 		try {
 			System.out.println("Posts in /up/61 : "
 					+ fetcher.getThreadPostCount(
-							NSLJSONInterface.BoardEntry.BOARD_UP, 61));
+							8, 61));
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}

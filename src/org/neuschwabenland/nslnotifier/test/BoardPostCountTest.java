@@ -10,7 +10,7 @@ public class BoardPostCountTest {
 			System.out
 					.println("Posts on /b/ : "
 							+ fetcher
-									.getBoardPostCount(NSLJSONInterface.BoardEntry.BOARD_B));
+									.getBoardPostCount(3));
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
